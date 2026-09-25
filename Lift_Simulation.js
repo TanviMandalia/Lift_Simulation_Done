@@ -18,11 +18,17 @@ function createFloors() {
   for (var f = totalFloors; f >= 1; f--) {
     var row = document.createElement("div");
     row.className = "floor-row";
-    row.innerHTML = 
-      "<span class='floor-label'>Floor " + f + "</span>" +
+    row.innerHTML =
+      "<span class='floor-label'>Floor " +
+      f +
+      "</span>" +
       "<div class='floor-buttons'>" +
-        "<button class='call-btn' onclick='callLift(" + f + ")'>▲</button>" +
-        "<button class='call-btn' onclick='callLift(" + f + ")'>▼</button>" +
+      "<button class='call-btn' onclick='callLift(" +
+      f +
+      ")'>&#9650;</button>" +
+      "<button class='call-btn' onclick='callLift(" +
+      f +
+      ")'>&#9660;</button>" +
       "</div>";
     floorsContainer.appendChild(row);
   }
@@ -31,13 +37,17 @@ function createFloors() {
 function createLift(id) {
   var liftLane = document.createElement("div");
   liftLane.className = "lift-lane";
-  liftLane.innerHTML = 
-    "<div class='lift' id='lift-" + id + "'>" +
-      "<div class='doors'>" +
-        "<div class='door-left'></div>" +
-        "<div class='door-right'></div>" +
-      "</div>" +
-      "<div class='lift-info'>L" + id + " (FL 1)</div>" +
+  liftLane.innerHTML =
+    "<div class='lift' id='lift-" +
+    id +
+    "'>" +
+    "<div class='doors'>" +
+    "<div class='door-left'></div>" +
+    "<div class='door-right'></div>" +
+    "</div>" +
+    "<div class='lift-info'>L" +
+    id +
+    " (FL 1)</div>" +
     "</div>";
   liftsContainer.appendChild(liftLane);
 
@@ -47,7 +57,6 @@ function createLift(id) {
     moving: false,
     el: liftLane.querySelector(".lift"),
     info: liftLane.querySelector(".lift-info"),
-    target: null
   });
 }
 
@@ -76,13 +85,9 @@ function callLift(floor) {
     }
   }
 
-  if (!selectedLift) {
-    selectedLift = lifts[0];
-  }
-
   if (selectedLift.moving && selectedLift.target > floor) {
     var originalTarget = selectedLift.target;
-    moveLift(selectedLift, floor, function() {
+    moveLift(selectedLift, floor, function () {
       moveLift(selectedLift, originalTarget, null);
     });
   } else {
@@ -93,22 +98,23 @@ function callLift(floor) {
 function moveLift(lift, targetFloor, callback) {
   lift.moving = true;
   lift.target = targetFloor;
-  
+
   var diff = Math.abs(lift.floor - targetFloor);
   var duration = diff * 1;
   if (duration === 0) duration = 0.5;
 
   lift.el.style.transition = "transform " + duration + "s linear";
-  lift.el.style.transform = "translateY(-" + ((targetFloor - 1) * floorHeight) + "px)";
+  lift.el.style.transform =
+    "translateY(-" + (targetFloor - 1) * floorHeight + "px)";
 
-  setTimeout(function() {
+  setTimeout(function () {
     lift.floor = targetFloor;
     lift.info.innerText = "L" + lift.id + " (FL " + targetFloor + ")";
-    
+
     lift.el.classList.add("doors-open");
-    setTimeout(function() {
+    setTimeout(function () {
       lift.el.classList.remove("doors-open");
-      setTimeout(function() {
+      setTimeout(function () {
         lift.moving = false;
         if (callback) {
           callback();
