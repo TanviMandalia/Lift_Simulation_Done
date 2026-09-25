@@ -108,11 +108,11 @@ body {
   cursor: not-allowed;
 }
 
-#shafts-container {
+#lifts-container {
   display: flex;
 }
 
-.shaft {
+.lift-lane {
   width: 110px;
   position: relative;
   border-right: 1px dashed #dcdfe6;

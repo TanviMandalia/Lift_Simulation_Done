@@ -4,7 +4,7 @@ var totalLifts = 3;
 
 var lifts = [];
 var floorsContainer = document.getElementById("floors-container");
-var shaftsContainer = document.getElementById("shafts-container");
+var liftsContainer = document.getElementById("lifts-container");
 
 function init() {
   createFloors();
@@ -29,9 +29,9 @@ function createFloors() {
 }
 
 function createLift(id) {
-  var shaft = document.createElement("div");
-  shaft.className = "shaft";
-  shaft.innerHTML = 
+  var liftLane = document.createElement("div");
+  liftLane.className = "lift-lane";
+  liftLane.innerHTML = 
     "<div class='lift' id='lift-" + id + "'>" +
       "<div class='doors'>" +
         "<div class='door-left'></div>" +
@@ -39,14 +39,14 @@ function createLift(id) {
       "</div>" +
       "<div class='lift-info'>L" + id + " (FL 1)</div>" +
     "</div>";
-  shaftsContainer.appendChild(shaft);
+  liftsContainer.appendChild(liftLane);
 
   lifts.push({
     id: id,
     floor: 1,
     moving: false,
-    el: shaft.querySelector(".lift"),
-    info: shaft.querySelector(".lift-info"),
+    el: liftLane.querySelector(".lift"),
+    info: liftLane.querySelector(".lift-info"),
     target: null
   });
 }
