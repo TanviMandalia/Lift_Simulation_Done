@@ -25,10 +25,10 @@ function createFloors() {
       "<div class='floor-buttons'>" +
       "<button class='call-btn' onclick='callLift(" +
       f +
-      ")'>▲</button>" +
+      ")'>&#9650;</button>" +
       "<button class='call-btn' onclick='callLift(" +
       f +
-      ")'>▼</button>" +
+      ")'>&#9660;</button>" +
       "</div>";
     floorsContainer.appendChild(row);
   }
@@ -81,7 +81,6 @@ function findClosestLift(floor, matches) {
 }
 
 function callLift(floor) {
-  if (floor < 1 || floor > totalFloors) return;
 
   var selectedLift =
     findClosestLift(floor, function (lift) {
@@ -99,7 +98,6 @@ function callLift(floor) {
 }
 
 function processLiftQueue(lift) {
-  if (lift.doorsOpen) return;
 
   var currentStopIndex = lift.queue.indexOf(lift.floor);
   if (currentStopIndex !== -1) {
