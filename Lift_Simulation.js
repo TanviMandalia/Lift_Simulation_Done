@@ -18,11 +18,17 @@ function createFloors() {
   for (var f = totalFloors; f >= 1; f--) {
     var row = document.createElement("div");
     row.className = "floor-row";
-    row.innerHTML = 
-      "<span class='floor-label'>Floor " + f + "</span>" +
+    row.innerHTML =
+      "<span class='floor-label'>Floor " +
+      f +
+      "</span>" +
       "<div class='floor-buttons'>" +
-        "<button class='call-btn' onclick='callLift(" + f + ")'>▲</button>" +
-        "<button class='call-btn' onclick='callLift(" + f + ")'>▼</button>" +
+      "<button class='call-btn' onclick='callLift(" +
+      f +
+      ")'>▲</button>" +
+      "<button class='call-btn' onclick='callLift(" +
+      f +
+      ")'>▼</button>" +
       "</div>";
     floorsContainer.appendChild(row);
   }
@@ -31,13 +37,17 @@ function createFloors() {
 function createLift(id) {
   var liftLane = document.createElement("div");
   liftLane.className = "lift-lane";
-  liftLane.innerHTML = 
-    "<div class='lift' id='lift-" + id + "'>" +
-      "<div class='doors'>" +
-        "<div class='door-left'></div>" +
-        "<div class='door-right'></div>" +
-      "</div>" +
-      "<div class='lift-info'>L" + id + " (FL 1)</div>" +
+  liftLane.innerHTML =
+    "<div class='lift' id='lift-" +
+    id +
+    "'>" +
+    "<div class='doors'>" +
+    "<div class='door-left'></div>" +
+    "<div class='door-right'></div>" +
+    "</div>" +
+    "<div class='lift-info'>L" +
+    id +
+    " (FL 1)</div>" +
     "</div>";
   liftsContainer.appendChild(liftLane);
 
@@ -47,75 +57,105 @@ function createLift(id) {
     moving: false,
     el: liftLane.querySelector(".lift"),
     info: liftLane.querySelector(".lift-info"),
-    target: null
+    target: null,
+    direction: 0,
+    queue: [],
+    doorsOpen: false,
   });
 }
 
-function callLift(floor) {
-  var selectedLift = null;
-  var minDistance = 999;
+function findClosestLift(floor, matches) {
+  var closestLift = null;
+  var minDistance = Infinity;
 
   for (var i = 0; i < lifts.length; i++) {
-    var l = lifts[i];
-    if (l.moving && l.target > l.floor && floor > l.floor && floor < l.target) {
-      selectedLift = l;
-      break;
+    var lift = lifts[i];
+    var distance = Math.abs(lift.floor - floor);
+    if (matches(lift) && distance < minDistance) {
+      closestLift = lift;
+      minDistance = distance;
     }
   }
 
-  if (!selectedLift) {
-    for (var i = 0; i < lifts.length; i++) {
-      var l = lifts[i];
-      if (!l.moving) {
-        var dist = Math.abs(l.floor - floor);
-        if (dist < minDistance) {
-          minDistance = dist;
-          selectedLift = l;
-        }
-      }
-    }
-  }
-
-  if (!selectedLift) {
-    selectedLift = lifts[0];
-  }
-
-  if (selectedLift.moving && selectedLift.target > floor) {
-    var originalTarget = selectedLift.target;
-    moveLift(selectedLift, floor, function() {
-      moveLift(selectedLift, originalTarget, null);
-    });
-  } else {
-    moveLift(selectedLift, floor, null);
-  }
+  return closestLift;
 }
 
-function moveLift(lift, targetFloor, callback) {
-  lift.moving = true;
-  lift.target = targetFloor;
-  
-  var diff = Math.abs(lift.floor - targetFloor);
-  var duration = diff * 1;
-  if (duration === 0) duration = 0.5;
+function callLift(floor) {
+  if (floor < 1 || floor > totalFloors) return;
 
-  lift.el.style.transition = "transform " + duration + "s linear";
-  lift.el.style.transform = "translateY(-" + ((targetFloor - 1) * floorHeight) + "px)";
+  var selectedLift =
+    findClosestLift(floor, function (lift) {
+      return !lift.moving;
+    }) ||
+    findClosestLift(floor, function () {
+      return true;
+    });
 
-  setTimeout(function() {
-    lift.floor = targetFloor;
-    lift.info.innerText = "L" + lift.id + " (FL " + targetFloor + ")";
-    
+  if (floor === selectedLift.floor && selectedLift.doorsOpen) return;
+  if (selectedLift.queue.indexOf(floor) === -1) {
+    selectedLift.queue.push(floor);
+  }
+  processLiftQueue(selectedLift);
+}
+
+function processLiftQueue(lift) {
+  if (lift.doorsOpen) return;
+
+  var currentStopIndex = lift.queue.indexOf(lift.floor);
+  if (currentStopIndex !== -1) {
+    lift.queue.splice(currentStopIndex, 1);
+    lift.moving = true;
+    lift.target = lift.floor;
+    lift.doorsOpen = true;
     lift.el.classList.add("doors-open");
-    setTimeout(function() {
+    setTimeout(function () {
       lift.el.classList.remove("doors-open");
-      setTimeout(function() {
-        lift.moving = false;
-        if (callback) {
-          callback();
-        }
+      lift.doorsOpen = false;
+      setTimeout(function () {
+        processLiftQueue(lift);
       }, 800);
     }, 1500);
-  }, duration * 1000);
+    return;
+  }
+
+  if (lift.queue.length === 0) {
+    lift.moving = false;
+    lift.target = null;
+    lift.direction = 0;
+    return;
+  }
+
+  if (lift.direction === 0) {
+    var nearestStop = lift.queue[0];
+    for (var i = 1; i < lift.queue.length; i++) {
+      if (
+        Math.abs(lift.queue[i] - lift.floor) <
+        Math.abs(nearestStop - lift.floor)
+      ) {
+        nearestStop = lift.queue[i];
+      }
+    }
+    lift.direction = nearestStop > lift.floor ? 1 : -1;
+  }
+
+  var hasStopAhead = lift.queue.some(function (stop) {
+    return lift.direction > 0 ? stop > lift.floor : stop < lift.floor;
+  });
+  if (!hasStopAhead) {
+    lift.direction *= -1;
+  }
+
+  lift.moving = true;
+  lift.target = lift.direction > 0 ? lift.floor + 1 : lift.floor - 1;
+  lift.el.style.transition = "transform 1s linear";
+  lift.el.style.transform =
+    "translateY(-" + (lift.target - 1) * floorHeight + "px)";
+
+  setTimeout(function () {
+    lift.floor = lift.target;
+    lift.info.innerText = "L" + lift.id + " (FL " + lift.floor + ")";
+    processLiftQueue(lift);
+  }, 1050);
 }
 
 function addFloor() {
