@@ -81,7 +81,6 @@ function findClosestLift(floor, matches) {
 }
 
 function callLift(floor) {
-
   var selectedLift =
     findClosestLift(floor, function (lift) {
       return !lift.moving;
@@ -98,7 +97,6 @@ function callLift(floor) {
 }
 
 function processLiftQueue(lift) {
-
   var currentStopIndex = lift.queue.indexOf(lift.floor);
   if (currentStopIndex !== -1) {
     lift.queue.splice(currentStopIndex, 1);
