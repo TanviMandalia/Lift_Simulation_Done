@@ -76,7 +76,6 @@ function findClosestLift(floor, matches) {
       minDistance = distance;
     }
   }
-
   return closestLift;
 }
 
@@ -89,7 +88,6 @@ function callLift(floor) {
       return true;
     });
 
-  if (floor === selectedLift.floor && selectedLift.doorsOpen) return;
   if (selectedLift.queue.indexOf(floor) === -1) {
     selectedLift.queue.push(floor);
   }
