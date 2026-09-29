@@ -19,10 +19,16 @@ function createFloor() {
     var row = document.createElement("div");
     row.className = "floor-row";
     row.innerHTML =
-      "<span class='floor-label'>Floor " + f + "</span>" +
+      "<span class='floor-label'>Floor " +
+      f +
+      "</span>" +
       "<div class='floor-buttons'>" +
-      "<button class='call-btn' onclick='callLift(" + f + ")'>&#9650;</button>" +
-      "<button class='call-btn' onclick='callLift(" + f + ")'>&#9660;</button>" +
+      "<button class='call-btn' onclick='callLift(" +
+      f +
+      ")'>&#9650;</button>" +
+      "<button class='call-btn' onclick='callLift(" +
+      f +
+      ")'>&#9660;</button>" +
       "</div>";
     floorsContainer.appendChild(row);
   }
@@ -34,16 +40,18 @@ function createLift(id) {
   lane.innerHTML =
     "<div class='lift'>" +
     "<div class='doors'><div class='door-left'></div><div class='door-right'></div></div>" +
-    "<div class='lift-info'>L" + id + " (FL 1)</div>" +
+    "<div class='lift-info'>L" +
+    id +
+    " (FL 1)</div>" +
     "</div>";
   liftsContainer.appendChild(lane);
 
   lifts.push({
     id: id,
-    floor: 1,       
-    direction: 0,    
-    busy: false,     
-    queue: [],       
+    floor: 1,
+    direction: 0,
+    busy: false,
+    queue: [],
     el: lane.querySelector(".lift"),
     info: lane.querySelector(".lift-info"),
   });
@@ -57,7 +65,6 @@ function pickLift(floor) {
   var best = null;
   var bestDistance = Infinity;
 
-  
   lifts.forEach(function (lift) {
     var distance = Math.abs(lift.floor - floor);
     var canTake = !lift.busy || isAhead(lift, floor);
@@ -66,9 +73,7 @@ function pickLift(floor) {
       bestDistance = distance;
     }
   });
-  if (best) return best;
 
-  
   lifts.forEach(function (lift) {
     var distance = Math.abs(lift.floor - floor);
     if (distance < bestDistance) {
@@ -90,7 +95,6 @@ function callLift(floor) {
 }
 
 function moveLift(lift) {
-  
   var index = lift.queue.indexOf(lift.floor);
   if (index !== -1) {
     lift.queue.splice(index, 1);
@@ -105,14 +109,12 @@ function moveLift(lift) {
     return;
   }
 
- 
   if (lift.queue.length === 0) {
     lift.busy = false;
     lift.direction = 0;
     return;
   }
 
- 
   var stopAhead = lift.queue.some(function (stop) {
     return isAhead(lift, stop);
   });
@@ -123,7 +125,8 @@ function moveLift(lift) {
   var nextFloor = lift.floor + lift.direction;
   lift.busy = true;
   lift.el.style.transition = "transform 1s linear";
-  lift.el.style.transform = "translateY(-" + (nextFloor - 1) * floorHeight + "px)";
+  lift.el.style.transform =
+    "translateY(-" + (nextFloor - 1) * floorHeight + "px)";
 
   setTimeout(function () {
     lift.floor = nextFloor;
