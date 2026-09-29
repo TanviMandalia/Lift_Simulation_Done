@@ -40,16 +40,15 @@ function createLift(id) {
 
   lifts.push({
     id: id,
-    floor: 1,        // last floor the lift reached
-    direction: 0,    // 1 = up, -1 = down, 0 = idle
-    busy: false,     // true while moving or doors are open
-    queue: [],       // floors to stop at
+    floor: 1,       
+    direction: 0,    
+    busy: false,     
+    queue: [],       
     el: lane.querySelector(".lift"),
     info: lane.querySelector(".lift-info"),
   });
 }
 
-// true if the floor is in the lift's current travelling direction
 function isAhead(lift, floor) {
   return (floor - lift.floor) * lift.direction > 0;
 }
@@ -58,7 +57,7 @@ function pickLift(floor) {
   var best = null;
   var bestDistance = Infinity;
 
-  // 1) prefer a lift already moving towards this floor, or an idle lift
+  
   lifts.forEach(function (lift) {
     var distance = Math.abs(lift.floor - floor);
     var canTake = !lift.busy || isAhead(lift, floor);
@@ -69,7 +68,7 @@ function pickLift(floor) {
   });
   if (best) return best;
 
-  // 2) otherwise just take the closest lift
+  
   lifts.forEach(function (lift) {
     var distance = Math.abs(lift.floor - floor);
     if (distance < bestDistance) {
@@ -91,7 +90,7 @@ function callLift(floor) {
 }
 
 function moveLift(lift) {
-  // 1) stop at the current floor if requested
+  
   var index = lift.queue.indexOf(lift.floor);
   if (index !== -1) {
     lift.queue.splice(index, 1);
@@ -106,15 +105,14 @@ function moveLift(lift) {
     return;
   }
 
-  // 2) nothing left to do
+ 
   if (lift.queue.length === 0) {
     lift.busy = false;
     lift.direction = 0;
     return;
   }
 
-  // 3) keep going the same way while stops remain ahead;
-  //    change direction only when there are none
+ 
   var stopAhead = lift.queue.some(function (stop) {
     return isAhead(lift, stop);
   });
@@ -122,7 +120,6 @@ function moveLift(lift) {
     lift.direction = lift.queue[0] > lift.floor ? 1 : -1;
   }
 
-  // 4) move one floor
   var nextFloor = lift.floor + lift.direction;
   lift.busy = true;
   lift.el.style.transition = "transform 1s linear";
