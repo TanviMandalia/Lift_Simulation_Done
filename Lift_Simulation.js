@@ -73,14 +73,6 @@ function pickLift(floor) {
       bestDistance = distance;
     }
   });
-
-  lifts.forEach(function (lift) {
-    var distance = Math.abs(lift.floor - floor);
-    if (distance < bestDistance) {
-      best = lift;
-      bestDistance = distance;
-    }
-  });
   return best;
 }
 
